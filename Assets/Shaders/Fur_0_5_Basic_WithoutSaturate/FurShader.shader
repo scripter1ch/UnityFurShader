@@ -1,4 +1,4 @@
-﻿Shader "Fur/FurBasicShader"
+﻿Shader "Fur/FurBasicShaderWithoutSaturate"
 {
     Properties
     {
