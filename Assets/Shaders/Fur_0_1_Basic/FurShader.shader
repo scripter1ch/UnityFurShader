@@ -10,6 +10,9 @@
         _FurTex ("Fur Pattern", 2D) = "white" { }
         
         _FurLength ("Fur Length", Range(0.0, 1)) = 0.5
+
+		_EmissionMap("Emission Map", 2D) = "black" {}
+		[HDR] _EmissionColor("Emission Color", Color) = (0,0,0)
     }
 
     Category

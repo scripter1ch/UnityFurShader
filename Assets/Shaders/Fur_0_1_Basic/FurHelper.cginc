@@ -22,6 +22,9 @@ half4 _FurTex_ST;
 
 fixed _FurLength;
 
+sampler2D _EmissionMap;
+fixed4 _EmissionColor;
+
 v2f vert_surface(appdata_base v)
 {
     v2f o;
@@ -60,8 +63,12 @@ fixed4 frag_surface(v2f i): SV_Target
     fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(saturate(dot(worldNormal, worldHalf)), _Shininess);
 
     fixed3 color = ambient + diffuse + specular;
-    
-    return fixed4(color, 1.0);
+	fixed4 output = fixed4(color, 1.0);
+
+	half4 emission = tex2D(_EmissionMap, i.uv) * _EmissionColor;
+	output.rgb += emission.rgb;
+
+    return output;
 }
 
 fixed4 frag_base(v2f i): SV_Target
@@ -79,5 +86,10 @@ fixed4 frag_base(v2f i): SV_Target
     fixed3 color = ambient + diffuse + specular;
     fixed alpha = tex2D(_FurTex, i.uv.zw).rgb;
     
-    return fixed4(color, alpha);
+	fixed4 output = fixed4(color, alpha);
+
+	half4 emission = tex2D(_EmissionMap, i.uv) * _EmissionColor;
+	output.rgb += emission.rgb;
+
+    return output;
 }
