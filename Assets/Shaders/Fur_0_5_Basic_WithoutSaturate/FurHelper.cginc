@@ -25,6 +25,8 @@ fixed _FurLength;
 sampler2D _EmissionMap;
 fixed4 _EmissionColor;
 
+float _Saturate;
+
 v2f vert_surface(appdata_base v)
 {
     v2f o;
@@ -59,8 +61,8 @@ fixed4 frag_surface(v2f i): SV_Target
     
     fixed3 albedo = tex2D(_MainTex, i.uv.xy).rgb * _Color;
     fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;
-    fixed3 diffuse = _LightColor0.rgb * albedo * saturate(dot(worldNormal, worldLight));
-    fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(saturate(dot(worldNormal, worldHalf)), _Shininess);
+	fixed3 diffuse = _LightColor0.rgb * albedo;
+    fixed3 specular = _LightColor0.rgb * _Specular.rgb;
 
     fixed3 color = ambient + diffuse + specular;
 	fixed4 output = fixed4(color, 1.0);
@@ -80,8 +82,8 @@ fixed4 frag_base(v2f i): SV_Target
 
     fixed3 albedo = tex2D(_MainTex, i.uv.xy).rgb * _Color;
     fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;
-    fixed3 diffuse = _LightColor0.rgb * albedo * saturate(dot(worldNormal, worldLight));
-    fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(saturate(dot(worldNormal, worldHalf)), _Shininess);
+    fixed3 diffuse = _LightColor0.rgb * albedo;
+    fixed3 specular = _LightColor0.rgb * _Specular.rgb;
 
     fixed3 color = ambient + diffuse + specular;
     fixed alpha = tex2D(_FurTex, i.uv.zw).rgb;
@@ -92,4 +94,49 @@ fixed4 frag_base(v2f i): SV_Target
 	output.rgb += emission.rgb;
 
     return output;
+}
+
+fixed4 frag_surface_without_saturate(v2f i) : SV_Target
+{
+
+	fixed3 worldNormal = normalize(i.worldNormal);
+	fixed3 worldLight = normalize(_WorldSpaceLightPos0.xyz);
+	fixed3 worldView = normalize(_WorldSpaceCameraPos.xyz - i.worldPos.xyz);
+	fixed3 worldHalf = normalize(worldView + worldLight);
+
+	fixed3 albedo = tex2D(_MainTex, i.uv.xy).rgb * _Color;
+	fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;
+	fixed3 diffuse = _LightColor0.rgb * albedo * saturate(dot(worldNormal, worldLight));
+	fixed3 specular = _LightColor0.rgb * _Specular.rgb;
+
+	fixed3 color = ambient + diffuse + specular;
+	fixed4 output = fixed4(color, 1.0);
+
+	half4 emission = tex2D(_EmissionMap, i.uv) * _EmissionColor;
+	output.rgb += emission.rgb;
+
+	return output;
+}
+
+fixed4 frag_base_without_saturate(v2f i) : SV_Target
+{
+	fixed3 worldNormal = normalize(i.worldNormal);
+	fixed3 worldLight = normalize(_WorldSpaceLightPos0.xyz);
+	fixed3 worldView = normalize(_WorldSpaceCameraPos.xyz - i.worldPos.xyz);
+	fixed3 worldHalf = normalize(worldView + worldLight);
+
+	fixed3 albedo = tex2D(_MainTex, i.uv.xy).rgb * _Color;
+	fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;
+	fixed3 diffuse = _LightColor0.rgb * albedo * saturate(dot(worldNormal, worldLight));
+	fixed3 specular = _LightColor0.rgb * _Specular.rgb;
+
+	fixed3 color = ambient + diffuse + specular;
+	fixed alpha = tex2D(_FurTex, i.uv.zw).rgb;
+
+	fixed4 output = fixed4(color, alpha);
+
+	half4 emission = tex2D(_EmissionMap, i.uv) * _EmissionColor;
+	output.rgb += emission.rgb;
+
+	return output;
 }
